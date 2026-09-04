@@ -19,6 +19,7 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sqlalchemy.orm import Session
 
 from app.config import get_settings
+from app.core.mlflow_client import is_mlflow_available
 from app.core.models import Model
 from app.ml.drift import histogram
 from app.ml.schema import CATEGORICAL_FEATURES, FEATURE_ORDER, NUMERIC_FEATURES
@@ -93,16 +94,17 @@ def train_and_register(
     artifact_path_str = artifact_path.as_posix()
 
     mlflow_run_id = None
-    try:
-        with mlflow.start_run(run_name=f"{name}-{version}") as run:
-            mlflow.log_param("algorithm", algo)
-            mlflow.log_param("model_name", name)
-            mlflow.log_param("version", version)
-            mlflow.log_metrics({k: v for k, v in metrics.items() if isinstance(v, int | float)})
-            mlflow.sklearn.log_model(pipeline, artifact_path="model", registered_model_name=name)
-            mlflow_run_id = run.info.run_id
-    except Exception:
-        logger.exception("MLflow logging failed; continuing without tracking (artifact still saved to disk)")
+    if is_mlflow_available():
+        try:
+            with mlflow.start_run(run_name=f"{name}-{version}") as run:
+                mlflow.log_param("algorithm", algo)
+                mlflow.log_param("model_name", name)
+                mlflow.log_param("version", version)
+                mlflow.log_metrics({k: v for k, v in metrics.items() if isinstance(v, int | float)})
+                mlflow.sklearn.log_model(pipeline, artifact_path="model", registered_model_name=name)
+                mlflow_run_id = run.info.run_id
+        except Exception:
+            logger.exception("MLflow logging failed; continuing without tracking (artifact still saved to disk)")
 
     model_row = Model(
         name=name,
