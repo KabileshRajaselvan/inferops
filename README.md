@@ -1,5 +1,7 @@
 # InferOps
 
+[![CI](https://github.com/KabileshRajaselvan/inferops/actions/workflows/ci.yml/badge.svg)](https://github.com/KabileshRajaselvan/inferops/actions/workflows/ci.yml)
+
 An ML model serving platform: A/B-tested inference between two model versions, Redis result
 caching, a Kafka event pipeline, KL-divergence data drift detection, and automatic retraining
 triggered by real accuracy regression - not simulated, actually measured from delayed feedback
