@@ -1,0 +1,94 @@
+{
+  "title": "InferOps",
+  "uid": "inferops-overview",
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "refresh": "10s",
+  "time": { "from": "now-1h", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Predictions / sec by model version",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum(rate(inferops_predictions_total[1m])) by (model_name, model_version)",
+          "legendFormat": "{{model_name}} v{{model_version}}"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Prediction latency p95 (ms)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(inferops_prediction_latency_ms_bucket[5m])) by (le, model_name))",
+          "legendFormat": "{{model_name}} p95"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Cache hit rate",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "expr": "sum(rate(inferops_cache_hits_total[5m])) / (sum(rate(inferops_cache_hits_total[5m])) + sum(rate(inferops_cache_misses_total[5m])))",
+          "legendFormat": "cache hit rate"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "percentunit" }, "overrides": [] }
+    },
+    {
+      "id": 4,
+      "title": "Model accuracy (rolling, from labeled feedback)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "targets": [
+        {
+          "expr": "inferops_model_accuracy",
+          "legendFormat": "{{model_name}} v{{version}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "percentunit" }, "overrides": [] }
+    },
+    {
+      "id": 5,
+      "title": "Data drift score (KL-divergence) by feature",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+      "targets": [
+        {
+          "expr": "inferops_data_drift_score",
+          "legendFormat": "{{model_name}} / {{feature}}"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Retraining jobs triggered (last 24h)",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 16 },
+      "targets": [
+        {
+          "expr": "sum(increase(inferops_retraining_jobs_total[24h]))"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Batch-predict rows processed (last 24h)",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 16 },
+      "targets": [
+        {
+          "expr": "sum(increase(inferops_batch_predict_rows_total[24h]))"
+        }
+      ]
+    }
+  ]
+}

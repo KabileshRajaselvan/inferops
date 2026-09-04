@@ -1,0 +1,15 @@
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+  - job_name: inferops-api
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["api:8000"]
+
+  # Separate target: model_accuracy / data_drift_score / retraining_jobs_total are set in the
+  # evaluator process, which has its own prometheus_client registry (per-process, in-memory) -
+  # see the docstring in app/evaluator.py.
+  - job_name: inferops-evaluator
+    static_configs:
+      - targets: ["evaluator:9100"]

@@ -1,0 +1,31 @@
+[project]
+name = "inferops"
+version = "1.0.0"
+description = "ML model serving platform: A/B-tested inference, drift detection, and automatic retraining."
+requires-python = ">=3.11"
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+# E501: line length is handled by formatting, not a hard error.
+# B008: FastAPI's Depends()/File()/Form() in argument defaults is the framework's
+# documented dependency-injection pattern, not the mutable-default-argument bug this rule targets.
+ignore = ["E501", "B008"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+filterwarnings = [
+    "ignore::DeprecationWarning:mlflow.*",
+    "ignore:Support for class-based `config`:DeprecationWarning",
+]
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+disallow_untyped_defs = false
